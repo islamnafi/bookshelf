@@ -14,11 +14,11 @@
     <style>
         :root {
             /* DARK MODE PALETTE */
-            --bg-dark: #0f172a;      /* Deep Navy/Black */
-            --bg-panel: #1e293b;     /* Lighter Navy */
-            --accent: #38bdf8;       /* Electric Cyan */
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --accent: #38bdf8;
             --accent-dim: #0ea5e9;
-            --text-main: #e2e8f0;    /* Off-white */
+            --text-main: #e2e8f0;
             --text-muted: #94a3b8;
             --border: #334155;
             --header-h: 64px;
@@ -31,33 +31,13 @@
             background: var(--bg-dark); color: var(--text-main); overflow: hidden;
         }
 
-        /* --- UTILS --- */
         .hidden { opacity: 0; pointer-events: none; z-index: -1; }
         .view-section {
             width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;
             background: var(--bg-dark); transition: opacity 0.3s; overflow: hidden; 
         }
 
-        /* --- LOGIN --- */
-        #login-view { z-index: 200; display: flex; align-items: center; justify-content: center; }
-        .login-card { 
-            background: var(--bg-panel); padding: 40px; border-radius: 12px; 
-            border: 1px solid var(--border); text-align: center; width: 350px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-        .login-input { 
-            width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border);
-            color: var(--accent); font-family: 'JetBrains Mono'; text-align: center; margin: 20px 0;
-            border-radius: 6px; outline: none; transition: 0.2s;
-        }
-        .login-input:focus { border-color: var(--accent); }
-        .login-btn { 
-            background: var(--accent); color: var(--bg-dark); border: none; padding: 12px; width: 100%;
-            font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .login-btn:hover { background: var(--accent-dim); }
-
-        /* --- HEADER --- */
+        /* HEADER */
         #header {
             position: absolute; top: 0; left: 0; width: 100%; height: var(--header-h);
             background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
@@ -67,7 +47,6 @@
 
         .h-left, .h-right { flex: 1; display: flex; align-items: center; gap: 20px; min-width: 0;}
         .h-right { justify-content: flex-end; }
-        
         .h-center {
             position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
             display: flex; align-items: center;
@@ -76,7 +55,7 @@
         .back-btn { background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
         .back-btn:hover { color: var(--accent); }
 
-        /* --- LIBRARY GRID --- */
+        /* LIBRARY */
         #library-view { z-index: 50; padding: 40px; overflow-y: auto; }
         .lib-title { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
         .bookshelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; max-width: 1200px; margin: 40px auto; padding-bottom: 100px; }
@@ -92,7 +71,7 @@
         .progress-fill { height: 100%; background: var(--accent); width: 0%; }
         .progress-text { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
 
-        /* --- TIMER --- */
+        /* TIMER */
         .timer-box {
             background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px;
             padding: 4px 12px; display: flex; align-items: center; gap: 10px;
@@ -105,52 +84,39 @@
         .timer-btn:hover { color: var(--accent); }
         .timer-display { font-family: 'JetBrains Mono'; color: var(--accent); font-weight: 700; width: 50px; text-align: center; }
 
-        /* --- READER UI --- */
+        /* READER */
         #main-container { position: absolute; top: var(--header-h); left: 0; right: 0; bottom: 0; display: flex; }
-        
         #pdf-viewport { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #000; }
         #pdf-scroll-area { flex: 1; overflow-y: auto; padding: 40px 0; display: flex; flex-direction: column; align-items: center; }
         
+        /* PAGE WRAPPER & TEXT LAYER FIX */
         .page-wrapper { margin-bottom: 20px; position: relative; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .textLayer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; opacity: 1; line-height: 1.0; }
+        .textLayer > span { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
         
-        /* Dark Mode PDF Fix (Inverts colors slightly to reduce glare, optional) */
-        /* canvas { filter: contrast(0.9); } */ 
+        /* High Contrast Selection Color */
+        .textLayer ::selection { background: rgba(56, 189, 248, 0.4); color: transparent; }
 
-        #sidebar { 
-            width: 320px; background: var(--bg-panel); border-left: 1px solid var(--border); 
-            display: flex; flex-direction: column; z-index: 90; 
-        }
-        .sidebar-header { 
-            padding: 15px; border-bottom: 1px solid var(--border); 
-            font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;
-            display: flex; align-items: center; gap: 10px;
-        }
+        /* SIDEBAR */
+        #sidebar { width: 320px; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 90; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         
-        /* Translation Cards */
-        .term-card {
-            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px;
-            padding: 12px; margin: 12px; animation: slideIn 0.2s;
-        }
+        .term-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin: 12px; animation: slideIn 0.2s; }
         .term-original { font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
         .term-translated { color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.9rem; }
         @keyframes slideIn { from{transform:translateX(10px);opacity:0} to{transform:translateX(0);opacity:1} }
 
-        /* Controls */
-        .page-controls { 
-            display: flex; align-items: center; gap: 10px; background: var(--bg-panel); 
-            padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); 
-        }
-        .page-input { 
-            background: transparent; border: none; color: var(--text-main); width: 40px; 
-            text-align: center; font-family: 'JetBrains Mono'; outline: none; 
-        }
+        .page-controls { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); }
+        .page-input { background: transparent; border: none; color: var(--text-main); width: 40px; text-align: center; font-family: 'JetBrains Mono'; outline: none; }
 
-        /* Loaders */
+        /* LOGIN */
+        #login-view { z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: var(--bg-panel); padding: 40px; border-radius: 12px; border: 1px solid var(--border); text-align: center; width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .login-input { width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--accent); font-family: 'JetBrains Mono'; text-align: center; margin: 20px 0; border-radius: 6px; outline: none; transition: 0.2s; }
+        .login-btn { background: var(--accent); color: var(--bg-dark); border: none; padding: 12px; width: 100%; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+
         .loader { position: absolute; inset: 0; background: var(--bg-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 150; }
         .spinner { color: var(--accent); font-size: 2rem; margin-bottom: 15px; }
-
-        /* Selection */
-        .textLayer ::selection { background: rgba(56, 189, 248, 0.3); }
     </style>
 </head>
 <body>
@@ -274,7 +240,7 @@
             } catch { grid.innerHTML = "CONNECTION ERROR"; }
         }
 
-        // --- READER ---
+        // --- READER (FIXED LOOP) ---
         async function loadBook(id) {
             const b = lib.find(x => x.id === id);
             curId = id;
@@ -297,26 +263,47 @@
 
                 const area = document.getElementById('pdf-scroll-area');
                 area.innerHTML = '';
-                const vp = (await pdf.getPage(1)).getViewport({scale:1});
+                const page1 = await pdf.getPage(1);
+                const vp = page1.getViewport({scale:1});
                 const scale = (area.clientWidth - 40) / vp.width;
 
                 for(let i=1; i<=pages; i++) {
-                    const p = await pdf.getPage(i);
-                    const v = p.getViewport({scale});
-                    const w = document.createElement('div');
-                    w.className = 'page-wrapper'; w.id = `pg-${i}`; w.dataset.n = i;
-                    w.style.width = v.width+'px'; w.style.height = v.height+'px';
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({scale});
                     
-                    const cvs = document.createElement('canvas');
-                    cvs.width = v.width; cvs.height = v.height;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'page-wrapper'; 
+                    wrapper.id = `pg-${i}`; 
+                    wrapper.dataset.n = i;
+                    wrapper.style.width = viewport.width+'px'; 
+                    wrapper.style.height = viewport.height+'px';
                     
-                    const txt = document.createElement('div');
-                    txt.className = 'textLayer';
-                    txt.style.width = v.width+'px'; txt.style.height = v.height+'px';
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width; 
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
                     
-                    w.append(cvs, txt); area.append(w);
-                    p.render({canvasContext:cvs.getContext('2d'), viewport:v});
-                    p.getTextContent().then(t => pdfjsLib.renderTextLayer({textContent:t, container:txt, viewport:v, textDivs:[]}));
+                    const textLayer = document.createElement('div');
+                    textLayer.className = 'textLayer';
+                    textLayer.style.width = viewport.width+'px'; 
+                    textLayer.style.height = viewport.height+'px';
+                    
+                    wrapper.append(canvas, textLayer); 
+                    area.append(wrapper);
+
+                    // Await Render
+                    await page.render({canvasContext: ctx, viewport: viewport}).promise;
+
+                    // Await Text Content
+                    const textContent = await page.getTextContent();
+                    
+                    // Render Text Layer properly
+                    pdfjsLib.renderTextLayer({
+                        textContent: textContent,
+                        container: textLayer,
+                        viewport: viewport,
+                        textDivs: []
+                    });
                 }
 
                 if(b.currentPage > 1) {
