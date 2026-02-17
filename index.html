@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nafiul's Workspace</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';</script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* DARK MODE PALETTE */
+            --bg-dark: #0f172a;      /* Deep Navy/Black */
+            --bg-panel: #1e293b;     /* Lighter Navy */
+            --accent: #38bdf8;       /* Electric Cyan */
+            --accent-dim: #0ea5e9;
+            --text-main: #e2e8f0;    /* Off-white */
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --header-h: 64px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif; margin: 0; padding: 0; height: 100vh;
+            background: var(--bg-dark); color: var(--text-main); overflow: hidden;
+        }
+
+        /* --- UTILS --- */
+        .hidden { opacity: 0; pointer-events: none; z-index: -1; }
+        .view-section {
+            width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;
+            background: var(--bg-dark); transition: opacity 0.3s; overflow: hidden; 
+        }
+
+        /* --- LOGIN --- */
+        #login-view { z-index: 200; display: flex; align-items: center; justify-content: center; }
+        .login-card { 
+            background: var(--bg-panel); padding: 40px; border-radius: 12px; 
+            border: 1px solid var(--border); text-align: center; width: 350px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .login-input { 
+            width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border);
+            color: var(--accent); font-family: 'JetBrains Mono'; text-align: center; margin: 20px 0;
+            border-radius: 6px; outline: none; transition: 0.2s;
+        }
+        .login-input:focus { border-color: var(--accent); }
+        .login-btn { 
+            background: var(--accent); color: var(--bg-dark); border: none; padding: 12px; width: 100%;
+            font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .login-btn:hover { background: var(--accent-dim); }
+
+        /* --- HEADER --- */
+        #header {
+            position: absolute; top: 0; left: 0; width: 100%; height: var(--header-h);
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px; z-index: 100;
+        }
+
+        .h-left, .h-right { flex: 1; display: flex; align-items: center; gap: 20px; min-width: 0;}
+        .h-right { justify-content: flex-end; }
+        
+        .h-center {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            display: flex; align-items: center;
+        }
+
+        .back-btn { background: none; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { color: var(--accent); }
+
+        /* --- LIBRARY GRID --- */
+        #library-view { z-index: 50; padding: 40px; overflow-y: auto; }
+        .lib-title { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
+        .bookshelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 24px; max-width: 1200px; margin: 40px auto; padding-bottom: 100px; }
+        
+        .book-card {
+            background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+            padding: 24px; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center;
+        }
+        .book-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+        .book-icon { font-size: 2.5rem; color: var(--text-muted); margin-bottom: 15px; }
+        .book-title { font-weight: 600; text-align: center; margin-bottom: 15px; line-height: 1.4; }
+        .progress-track { width: 100%; height: 4px; background: var(--bg-dark); border-radius: 2px; overflow: hidden; margin-top: auto; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; }
+        .progress-text { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+
+        /* --- TIMER --- */
+        .timer-box {
+            background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px;
+            padding: 4px 12px; display: flex; align-items: center; gap: 10px;
+        }
+        .timer-input { 
+            background: transparent; border: none; color: var(--accent); width: 30px; 
+            text-align: center; font-family: 'JetBrains Mono'; font-weight: 700; outline: none;
+        }
+        .timer-btn { color: var(--text-muted); background: none; border: none; cursor: pointer; font-size: 0.8rem; }
+        .timer-btn:hover { color: var(--accent); }
+        .timer-display { font-family: 'JetBrains Mono'; color: var(--accent); font-weight: 700; width: 50px; text-align: center; }
+
+        /* --- READER UI --- */
+        #main-container { position: absolute; top: var(--header-h); left: 0; right: 0; bottom: 0; display: flex; }
+        
+        #pdf-viewport { flex: 1; position: relative; display: flex; flex-direction: column; overflow: hidden; background: #000; }
+        #pdf-scroll-area { flex: 1; overflow-y: auto; padding: 40px 0; display: flex; flex-direction: column; align-items: center; }
+        
+        .page-wrapper { margin-bottom: 20px; position: relative; flex-shrink: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        
+        /* Dark Mode PDF Fix (Inverts colors slightly to reduce glare, optional) */
+        /* canvas { filter: contrast(0.9); } */ 
+
+        #sidebar { 
+            width: 320px; background: var(--bg-panel); border-left: 1px solid var(--border); 
+            display: flex; flex-direction: column; z-index: 90; 
+        }
+        .sidebar-header { 
+            padding: 15px; border-bottom: 1px solid var(--border); 
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        /* Translation Cards */
+        .term-card {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px;
+            padding: 12px; margin: 12px; animation: slideIn 0.2s;
+        }
+        .term-original { font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .term-translated { color: var(--accent); font-family: 'JetBrains Mono'; font-size: 0.9rem; }
+        @keyframes slideIn { from{transform:translateX(10px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+        /* Controls */
+        .page-controls { 
+            display: flex; align-items: center; gap: 10px; background: var(--bg-panel); 
+            padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); 
+        }
+        .page-input { 
+            background: transparent; border: none; color: var(--text-main); width: 40px; 
+            text-align: center; font-family: 'JetBrains Mono'; outline: none; 
+        }
+
+        /* Loaders */
+        .loader { position: absolute; inset: 0; background: var(--bg-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 150; }
+        .spinner { color: var(--accent); font-size: 2rem; margin-bottom: 15px; }
+
+        /* Selection */
+        .textLayer ::selection { background: rgba(56, 189, 248, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div id="login-view" class="view-section">
+        <div class="login-card">
+            <i class="fas fa-terminal" style="font-size:2rem; color:var(--accent); margin-bottom:20px;"></i>
+            <h2 style="margin-bottom:10px;">Welcome Back, Nafiul</h2>
+            <input type="password" id="pass-input" class="login-input" placeholder="ACCESS KEY">
+            <button class="login-btn" onclick="login()">Enter System</button>
+            <div id="login-msg" style="color:#ef4444; margin-top:10px; font-size:0.8rem; height:1rem;"></div>
+        </div>
+    </div>
+
+    <div id="library-view" class="view-section hidden">
+        <div style="padding: 40px 40px 0 40px;">
+            <div class="lib-title">Workspace</div>
+            <div style="color:var(--text-muted);">Current Reading List</div>
+        </div>
+        <div id="bookshelf" class="bookshelf-grid">
+            <div style="text-align:center; color:var(--text-muted); grid-column:1/-1;">Fetching Data...</div>
+        </div>
+    </div>
+
+    <div id="reader-view" class="view-section hidden">
+        <div id="header">
+            <div class="h-left">
+                <button class="back-btn" onclick="closeBook()"><i class="fas fa-arrow-left"></i> Library</button>
+                <div id="book-title" style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Title</div>
+            </div>
+            
+            <div class="h-center">
+                <div id="timer-idle" class="timer-box">
+                    <span style="font-size:0.8rem; color:var(--text-muted)">SESSION</span>
+                    <input type="number" id="t-input" class="timer-input" value="30">
+                    <span style="font-size:0.8rem; color:var(--text-muted)">MIN</span>
+                    <button class="timer-btn" onclick="startTimer()"><i class="fas fa-play"></i></button>
+                </div>
+                <div id="timer-active" class="timer-box" style="display:none;">
+                    <span id="t-display" class="timer-display">30:00</span>
+                    <button class="timer-btn" onclick="stopTimer()"><i class="fas fa-stop"></i></button>
+                </div>
+            </div>
+
+            <div class="h-right">
+                <div id="last-read-badge" style="font-size:0.8rem; color:var(--accent); font-family:'JetBrains Mono'; display:none;">
+                    LAST: <span id="last-read-val">0</span>
+                </div>
+                <div class="page-controls">
+                    <button class="timer-btn" onclick="nav(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <input type="number" id="p-input" class="page-input" value="0">
+                    <span style="color:var(--text-muted)">/</span>
+                    <span id="p-total" style="color:var(--text-muted)">0</span>
+                    <button class="timer-btn" onclick="nav(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-container">
+            <div id="pdf-viewport">
+                <div id="pdf-scroll-area"></div>
+                <div id="loader" class="loader hidden">
+                    <i class="fas fa-circle-notch fa-spin spinner"></i>
+                    <div style="font-family:'JetBrains Mono'">DOWNLOADING STREAM...</div>
+                </div>
+            </div>
+            <div id="sidebar">
+                <div class="sidebar-header"><i class="fas fa-language"></i> Translation Console</div>
+                <div id="data-display" style="flex:1; overflow-y:auto; padding:10px;">
+                    <div style="text-align:center; color:var(--border); margin-top:50px;">// AWAITING SELECTION</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const API_URL = "https://script.google.com/macros/s/AKfycbyWzMesQ-cASULz1uOoPRQS1lu8dqyYSRJl7vAdcFCusYAn_VCQuFx4QCQWfBlbNzq2sw/exec"; 
+
+        // --- STATE ---
+        let lib = [], curId = null, pdf = null, pages = 0, userTyping = false;
+        let tInterval = null, tTime = 0;
+
+        // --- AUTH ---
+        async function login() {
+            const pass = document.getElementById('pass-input').value;
+            const msg = document.getElementById('login-msg');
+            msg.textContent = "AUTHENTICATING...";
+            
+            try {
+                const res = await fetch(`${API_URL}?op=login&pass=${encodeURIComponent(pass)}`);
+                if ((await res.text()) === "CORRECT") {
+                    document.getElementById('login-view').classList.add('hidden');
+                    document.getElementById('library-view').classList.remove('hidden');
+                    loadLib();
+                } else throw new Error();
+            } catch { msg.textContent = "ACCESS DENIED"; }
+        }
+        document.getElementById('pass-input').addEventListener('keypress', e => { if(e.key==='Enter') login() });
+
+        // --- LIBRARY ---
+        async function loadLib() {
+            const grid = document.getElementById('bookshelf');
+            try {
+                lib = await (await fetch(API_URL + "?op=library")).json();
+                grid.innerHTML = '';
+                if(lib.length===0) grid.innerHTML = '<div style="color:#555">No Data Found</div>';
+                
+                lib.forEach(b => {
+                    const d = document.createElement('div');
+                    d.className = 'book-card';
+                    d.onclick = () => loadBook(b.id);
+                    d.innerHTML = `
+                        <i class="fas fa-book book-icon"></i>
+                        <div class="book-title">${b.title}</div>
+                        <div class="progress-track"><div class="progress-fill" style="width:${b.progress}%"></div></div>
+                        <div class="progress-text">${b.progress}% COMPLETED</div>
+                    `;
+                    grid.appendChild(d);
+                });
+            } catch { grid.innerHTML = "CONNECTION ERROR"; }
+        }
+
+        // --- READER ---
+        async function loadBook(id) {
+            const b = lib.find(x => x.id === id);
+            curId = id;
+            document.getElementById('book-title').textContent = b.title;
+            
+            document.getElementById('library-view').classList.add('hidden');
+            document.getElementById('reader-view').classList.remove('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+
+            try {
+                const b64 = await (await fetch(`${API_URL}?op=read&id=${id}`)).text();
+                if(b64.startsWith("ERROR")) throw new Error();
+                
+                const bin = atob(b64), len = bin.length, bytes = new Uint8Array(len);
+                for (let i=0; i<len; i++) bytes[i] = bin.charCodeAt(i);
+
+                pdf = await pdfjsLib.getDocument({data: bytes}).promise;
+                pages = pdf.numPages;
+                document.getElementById('p-total').textContent = pages;
+
+                const area = document.getElementById('pdf-scroll-area');
+                area.innerHTML = '';
+                const vp = (await pdf.getPage(1)).getViewport({scale:1});
+                const scale = (area.clientWidth - 40) / vp.width;
+
+                for(let i=1; i<=pages; i++) {
+                    const p = await pdf.getPage(i);
+                    const v = p.getViewport({scale});
+                    const w = document.createElement('div');
+                    w.className = 'page-wrapper'; w.id = `pg-${i}`; w.dataset.n = i;
+                    w.style.width = v.width+'px'; w.style.height = v.height+'px';
+                    
+                    const cvs = document.createElement('canvas');
+                    cvs.width = v.width; cvs.height = v.height;
+                    
+                    const txt = document.createElement('div');
+                    txt.className = 'textLayer';
+                    txt.style.width = v.width+'px'; txt.style.height = v.height+'px';
+                    
+                    w.append(cvs, txt); area.append(w);
+                    p.render({canvasContext:cvs.getContext('2d'), viewport:v});
+                    p.getTextContent().then(t => pdfjsLib.renderTextLayer({textContent:t, container:txt, viewport:v, textDivs:[]}));
+                }
+
+                if(b.currentPage > 1) {
+                    document.getElementById('last-read-badge').style.display = 'block';
+                    document.getElementById('last-read-val').textContent = b.currentPage;
+                }
+                document.getElementById('p-input').value = 1;
+                area.scrollTop = 0;
+                document.getElementById('loader').classList.add('hidden');
+
+            } catch { alert("DATA CORRUPTION DETECTED"); document.getElementById('loader').classList.add('hidden'); }
+        }
+
+        function closeBook() {
+            document.getElementById('reader-view').classList.add('hidden');
+            document.getElementById('library-view').classList.remove('hidden');
+            stopTimer(); loadLib();
+        }
+
+        // --- TIMER ---
+        function startTimer() {
+            tTime = parseInt(document.getElementById('t-input').value) * 60;
+            if(!tTime) return;
+            document.getElementById('timer-idle').style.display = 'none';
+            document.getElementById('timer-active').style.display = 'flex';
+            updTimer();
+            tInterval = setInterval(() => {
+                tTime--; updTimer();
+                if(tTime<=0) { stopTimer(); alert("SESSION COMPLETE"); }
+            }, 1000);
+        }
+        function stopTimer() {
+            clearInterval(tInterval);
+            document.getElementById('timer-idle').style.display = 'flex';
+            document.getElementById('timer-active').style.display = 'none';
+        }
+        function updTimer() {
+            const m = Math.floor(tTime/60), s = tTime%60;
+            document.getElementById('t-display').textContent = `${m}:${s<10?'0':''}${s}`;
+        }
+
+        // --- NAV ---
+        const pIn = document.getElementById('p-input');
+        const area = document.getElementById('pdf-scroll-area');
+        let scT;
+
+        pIn.addEventListener('focus', () => { userTyping=true; window.scrollTo(0,0); });
+        pIn.addEventListener('blur', () => userTyping=false);
+        pIn.addEventListener('keypress', e => { if(e.key==='Enter') jump(parseInt(pIn.value)) });
+
+        function nav(d) { jump((parseInt(pIn.value)||1) + d); }
+        function jump(n) {
+            if(n<1 || n>pages) return;
+            document.getElementById(`pg-${n}`).scrollIntoView({block:'start'});
+            pIn.value = n; pIn.blur(); save(n);
+        }
+
+        area.addEventListener('scroll', () => {
+            if(userTyping) return;
+            clearTimeout(scT);
+            scT = setTimeout(() => {
+                let best = 1, dist = Infinity;
+                document.querySelectorAll('.page-wrapper').forEach(p => {
+                    const d = Math.abs(p.getBoundingClientRect().top - 64);
+                    if(d < dist) { dist = d; best = parseInt(p.dataset.n); }
+                });
+                if(best !== parseInt(pIn.value)) { pIn.value = best; save(best); }
+            }, 100);
+        });
+
+        async function save(p) { if(curId) fetch(`${API_URL}?op=update&id=${curId}&page=${p}&total=${pages}`, {mode:'no-cors'}); }
+
+        // --- TRANS ---
+        document.addEventListener('mouseup', () => {
+            const t = window.getSelection().toString().trim();
+            if(t) trans(t);
+        });
+        async function trans(txt) {
+            const box = document.getElementById('data-display');
+            box.innerHTML = '<div style="color:var(--accent); text-align:center;">PROCESSING...</div>';
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=bn&dt=t&q=${encodeURIComponent(txt)}`;
+                const res = await (await fetch(url)).json();
+                const bn = res[0].map(x=>x[0]).join('');
+                box.innerHTML = `
+                    <div class="term-card">
+                        <div class="term-original">${txt}</div>
+                        <div class="term-translated">${bn}</div>
+                    </div>`;
+            } catch { box.innerHTML = '<div style="color:#ef4444; text-align:center;">ERROR</div>'; }
+        }
+    </script>
+</body>
+</html>
