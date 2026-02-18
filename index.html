@@ -98,18 +98,31 @@
         /* High Contrast Selection Color (Yellow Glow) */
         .textLayer ::selection { background: rgba(255, 215, 0, 0.4); color: transparent; }
 
-        /* SIDEBAR */
-        #sidebar { width: 320px; background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; z-index: 90; }
+        /* SIDEBAR (UPDATED) */
+        #sidebar { 
+            width: 400px; /* Wider */
+            background: var(--bg-panel); 
+            border-left: 1px solid var(--border); 
+            display: flex; flex-direction: column; z-index: 90; 
+        }
         .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; display: flex; align-items: center; gap: 10px; }
         
-        /* Translation Cards */
-        .term-card { background: var(--bg-dark); border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; padding: 12px; margin: 12px; animation: slideIn 0.2s; }
-        .term-original { font-weight: 700; color: var(--text-main); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+        /* Translation Cards (UPDATED) */
+        .term-card { background: var(--bg-dark); border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; padding: 16px; margin: 12px; animation: slideIn 0.2s; }
+        .term-original { font-weight: 700; color: var(--text-main); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; font-size: 1.1rem; }
         
-        .trans-row { margin-bottom: 6px; font-family: 'JetBrains Mono'; font-size: 0.85rem; }
-        .trans-label { color: var(--text-muted); font-size: 0.7rem; display: inline-block; width: 60px; }
-        .trans-val { color: var(--accent); }
-        .dict-entry { margin-top: 8px; font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border); padding-top: 4px; }
+        .trans-row { margin-bottom: 8px; font-family: 'JetBrains Mono'; font-size: 1rem; } /* Bigger */
+        .trans-label { color: #aaaaaa; font-size: 0.8rem; display: inline-block; width: 85px; } /* Lighter & Bigger */
+        .trans-val { color: var(--accent); font-size: 1.1rem; } /* Bigger */
+        
+        .dict-entry { 
+            margin-top: 10px; 
+            font-size: 1rem; /* Bigger */
+            color: #e5e5e5; /* Much lighter/readable */
+            border-top: 1px dashed var(--border); 
+            padding-top: 8px; 
+            line-height: 1.5; /* Better spacing */
+        }
 
         @keyframes slideIn { from{transform:translateX(10px);opacity:0} to{transform:translateX(0);opacity:1} }
 
@@ -199,7 +212,7 @@
                 <div id="pdf-scroll-area"></div>
                 <div id="loader" class="loader hidden">
                     <i class="fas fa-square fa-spin spinner"></i>
-                    <div style="font-family:'JetBrains Mono'; color:var(--accent); letter-spacing:2px; font-size:0.8rem;">DOWNLOADING YOUR BOOK...</div>
+                    <div style="font-family:'JetBrains Mono'; color:var(--accent); letter-spacing:2px; font-size:0.8rem;">DOWNLOADING STREAM...</div>
                 </div>
             </div>
             <div id="sidebar">
@@ -315,7 +328,6 @@
                     pdfjsLib.renderTextLayer({ textContent: textContent, container: textLayer, viewport: viewport, textDivs: [] });
                 }
 
-                // Show "Last Read" badge
                 if(b.currentPage > 1) {
                     document.getElementById('last-read-badge').style.display = 'block';
                     document.getElementById('last-read-val').textContent = b.currentPage;
@@ -440,7 +452,7 @@
                     const dData = await dRes.json();
                     if(Array.isArray(dData)) {
                         dData[0].meanings.forEach(m => {
-                            html += `<div class="term-card"><div class="term-original" style="color:var(--text-muted)">${m.partOfSpeech.toUpperCase()}</div>`;
+                            html += `<div class="term-card"><div class="term-original" style="color:#aaaaaa">${m.partOfSpeech.toUpperCase()}</div>`;
                             m.definitions.slice(0, 2).forEach(d => {
                                 html += `<div class="dict-entry"># ${d.definition}</div>`;
                             });
